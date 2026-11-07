@@ -1,4 +1,4 @@
-import { ReviewActions } from "./adjustment-form";
+import { ReviewExperience } from "./review-experience";
 import { notFound } from "next/navigation";
 import { adminClient, configured } from "../../../lib/supabase";
 import { hashReviewToken } from "../../../lib/review";
@@ -27,12 +27,10 @@ export default async function Review({ params }: { params: Promise<{ token: stri
     ? version.adjustment_requests[0] : version.adjustment_requests;
 
   return <main><p className="eyebrow">Revisão de entrega</p><h1>{delivery.title}</h1>
-    <div className="columns review">
-      <div className="preview"><img src={image.signedUrl} alt={`Arte de ${delivery.title}, versão ${version.number}`} /></div>
-      <aside className="panel"><h2>Revisão</h2><p className="version">V{version.number} · Atual</p><p className="muted">Confira a imagem enviada pelo freelancer.</p>
-        <ReviewActions key={version.id} token={token} versionId={version.id}
-          versionNumber={version.number} approved={Boolean(version.approved_at)} feedback={feedback?.comment} />
-      </aside>
-    </div>
+    <ReviewExperience key={delivery.id} token={token} approved={Boolean(version.approved_at)}
+      feedback={feedback?.comment} image={{
+        id: version.id, number: version.number, src: image.signedUrl,
+        alt: `Arte de ${delivery.title}, versão ${version.number}`,
+      }} />
   </main>;
 }

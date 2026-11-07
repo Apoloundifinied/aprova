@@ -154,3 +154,37 @@ button.secondary.destructive { color:var(--error); }
   .delivery-badges { grid-row:2; justify-content:flex-start; }
   .delivery-chevron { grid-column:2; grid-row:1; }
 }
+
+.review-preview { position:relative; height:clamp(250px,62svh,680px); isolation:isolate; }
+.review-preview img {
+  grid-area:1/1; width:100%; height:100%; max-height:none; opacity:0; animation:none;
+  transition:opacity .16s ease-out;
+}
+.review-preview img[data-visible="true"] { opacity:1; }
+.review-preview img[data-current="true"] { z-index:1; }
+.review-enter .review-preview, .review-enter .review-side { animation:review-enter .2s ease-out both; }
+.review-enter .review-side { animation-delay:.045s; }
+.review-loading {
+  position:absolute; z-index:2; inset:0 0 auto; display:grid; justify-items:start;
+  gap:8px; pointer-events:none;
+}
+.review-loading > span:last-child {
+  background:var(--panel); color:var(--ink); padding:6px 10px; margin:0 8px;
+  border-radius:6px; font-size:13px;
+}
+.review-loading-track { width:100%; height:3px; overflow:hidden; background:var(--line); }
+.review-loading-track::after {
+  display:block; content:""; width:34%; height:100%; background:var(--accent);
+  animation:review-progress 1.1s ease-in-out infinite;
+}
+.review-image-error { position:relative; z-index:2; grid-area:1/1; text-align:center; padding:16px; }
+.review-side-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.review-side-heading h2 { margin:0; }
+.review-side-heading button { font-size:13px; }
+.review-result { animation:review-enter .18s ease-out both; }
+@keyframes review-enter { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+@keyframes review-progress { from { transform:translateX(-100%); } to { transform:translateX(300%); } }
+@media (prefers-reduced-motion:reduce) {
+  .review-enter .review-preview,.review-enter .review-side,.review-result,.review-loading-track::after { animation:none; }
+  .review-preview img { transition:none; }
+}
