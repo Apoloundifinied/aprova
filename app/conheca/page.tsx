@@ -28,7 +28,7 @@ export default function Product() {
     <section className={styles.hero} aria-labelledby="landing-title">
       <div className={styles.heroCopy}>
         <p className={styles.kicker} data-intro><i /> Revisão de entregas criativas</p>
-        <h1 id="landing-title" data-intro>Da criação<br />à <em>aprovação.</em></h1>
+        <h1 id="landing-title" data-intro>Da criação <br />à <em>aprovação.</em></h1>
         <p className={styles.lead} data-intro>Envie seu trabalho, receba feedback e aprove a versão certa. Tudo no mesmo link.</p>
         <div className={styles.actions} data-intro>
           <Link className={styles.primary} href="/demo">Experimentar a demo <span aria-hidden="true">↗</span></Link>

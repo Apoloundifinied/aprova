@@ -16,7 +16,7 @@ export function LandingMotion({ children }: { children: ReactNode }) {
     media.add("(prefers-reduced-motion: no-preference)", () => {
       const select = gsap.utils.selector(root);
       gsap.from(select("[data-intro]"), { y: 18, opacity: 0, duration: .68, stagger: .065, ease: "power3.out" });
-      gsap.from(select("[data-stage]"), { y: 24, opacity: 0, scale: .97, duration: .9, ease: "power3.out" });
+      gsap.from(select("[data-stage]"), { y: 24, opacity: 0, duration: .9, ease: "power3.out" });
       select("[data-reveal]").forEach((section) => {
         if (section.getBoundingClientRect().top < window.innerHeight) return;
         gsap.from(section, {

@@ -1,7 +1,8 @@
 :global(body):has(.landing) > :global(header) { display:none }
 .landing {
   --acid:#d7ff40; --surface:#171a15; --border:#30352b; --soft:#b1b8a9;
-  max-width:none; padding:0 max(24px,calc((100% - 1320px)/2)); margin:0;
+  --gutter:max(24px,calc((100% - 1320px)/2));
+  max-width:none; padding:0 var(--gutter); margin:0;
   background:#10120f; color:#f5f6ef; overflow:clip;
 }
 .landing :is(h1,h2,h3,p,figure,dl,dd) { margin:0 }
@@ -16,8 +17,11 @@
 .navLinks a:hover,.secondary:hover { color:var(--acid) }
 .login { display:flex; align-items:center; gap:14px; border:1px solid var(--border); border-radius:8px; padding:10px 15px; font-weight:650 }
 .login:hover { background:#23281c }
-.hero { display:grid; grid-template-columns:.96fr 1.04fr; align-items:center; gap:clamp(20px,4.4vw,66px); padding:clamp(42px,7vw,105px) 0 }
-.heroCopy { min-width:0 }
+.hero { display:flex; flex-direction:column; gap:clamp(32px,4vw,56px); padding:clamp(36px,5vw,72px) 0 0 }
+.heroCopy { min-width:0; text-align:center }
+.heroCopy .kicker,.heroCopy .actions { justify-content:center }
+.heroCopy .lead { margin-inline:auto; max-width:620px }
+@media(min-width:901px) { .heroCopy h1 br { display:none } }
 .kicker,.micro,.stageBar,.stageFoot>span,.band,.artLabel,.artCode { font-family:ui-monospace,monospace; font-size:12px; letter-spacing:.11em; text-transform:uppercase }
 .kicker { color:var(--acid); display:flex; align-items:center; gap:9px }
 .kicker i,.stageBar i,.pill i { display:inline-block; width:7px; height:7px; background:currentColor; border-radius:50%; flex:none }
@@ -31,20 +35,21 @@
 .secondary { color:var(--soft) }
 .heroCopy .micro { margin-top:18px; color:var(--soft); font-size:10px }
 .stage {
-  min-width:0; position:relative; border:1px solid #3a4230; border-radius:20px;
+  min-width:0; position:relative; border-block:1px solid #3a4230;
   background:radial-gradient(ellipse at 50% 45%,#29351a,transparent 67%),#181d14;
   box-shadow:0 22px 65px #0006;
 }
-.stageBar,.stageFoot { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:14px 16px; color:#bac4ad }
+.landing .stage { margin-inline:calc(-1 * var(--gutter)) }
+.stageBar,.stageFoot { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:14px var(--gutter); color:#bac4ad }
 .stageBar { border-bottom:1px solid #3a4230; font-size:10px }
 .stageBar i { color:var(--acid); margin-right:6px }
 .scene {
-  position:relative; height:clamp(300px,30vw,430px); transform-style:preserve-3d;
+  position:relative; height:clamp(300px,40vw,560px); transform-style:preserve-3d;
   background-image:linear-gradient(#bdff4411 1px,transparent 1px),linear-gradient(90deg,#bdff4411 1px,transparent 1px);
   background-size:28px 28px;
 }
 .stage { perspective:1000px }
-.backplate,.art { position:absolute; width:53%; height:79%; top:10%; left:17%; border-radius:13px }
+.backplate,.art { position:absolute; width:min(57%,470px); height:79%; top:10%; left:max(13%,calc(50% - 275px)); border-radius:13px }
 .backplate { transform:translate3d(-14px,9px,-28px) rotate(-16deg); background:#343f27; border:1px solid #617050 }
 .art {
   isolation:isolate; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; padding:14px;
@@ -67,7 +72,7 @@
 .orbit i:nth-child(2) { transform:rotate(64deg) rotateX(51deg); inset:10% }
 .orbit i:nth-child(3) { transform:rotate(123deg) rotateX(54deg); inset:17% }
 .status {
-  position:absolute; right:4%; bottom:12%; width:min(56%,251px); display:grid; gap:7px; padding:14px;
+  position:absolute; right:max(4%,calc(50% - 370px)); bottom:12%; width:min(56%,280px); display:grid; gap:7px; padding:14px;
   transform:translateZ(46px); border:1px solid #5a654b; border-radius:11px; background:#181e14; box-shadow:0 12px 26px #0008;
 }
 .status strong { font-size:clamp(13px,1.45vw,18px); line-height:1.22 }
@@ -101,14 +106,11 @@
 .footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px; padding:32px 0; color:var(--soft) }
 .footer .brand { color:#f5f6ef }
 @media(max-width:900px) {
-  .hero { grid-template-columns:1fr; gap:38px }
-  .heroCopy { max-width:650px }
-  .stage { width:min(100%,650px) }
   .scene { height:clamp(290px,60vw,410px) }
   .artTitle { font-size:clamp(29px,7vw,55px) }
 }
 @media(max-width:620px) {
-  .landing { padding-inline:18px }
+  .landing { --gutter:18px }
   .nav { min-height:70px }
   .navLinks { display:none }
   .landing h1 { font-size:clamp(49px,12.6vw,70px) }
