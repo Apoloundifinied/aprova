@@ -1,4 +1,4 @@
-import { AdjustmentForm, ApprovalForm } from "./adjustment-form";
+import { ReviewActions } from "./adjustment-form";
 import { notFound } from "next/navigation";
 import { adminClient, configured } from "../../../lib/supabase";
 import { hashReviewToken } from "../../../lib/review";
@@ -30,13 +30,8 @@ export default async function Review({ params }: { params: Promise<{ token: stri
     <div className="columns review">
       <div className="preview"><img src={image.signedUrl} alt={`Arte de ${delivery.title}, versão ${version.number}`} /></div>
       <aside className="panel"><h2>Revisão</h2><p className="version">V{version.number} · Atual</p><p className="muted">Confira a imagem enviada pelo freelancer.</p>
-        {version.approved_at ? <p className="version" role="status">V{version.number} aprovada.</p> : feedback ? <div className="feedback">
-          <strong>Ajuste solicitado</strong>
-          <p>{feedback.comment}</p>
-        </div> : <>
-          <ApprovalForm token={token} versionId={version.id} />
-          <AdjustmentForm token={token} versionId={version.id} />
-        </>}
+        <ReviewActions key={version.id} token={token} versionId={version.id}
+          versionNumber={version.number} approved={Boolean(version.approved_at)} feedback={feedback?.comment} />
       </aside>
     </div>
   </main>;

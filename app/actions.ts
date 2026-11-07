@@ -115,13 +115,14 @@ export async function publishVersion(id: string, _: VersionResult, form: FormDat
 
 export async function revokeLink(form: FormData) {
   const id = String(form.get("delivery") ?? "");
-  if (!/^[a-f0-9-]{36}$/i.test(id)) return;
+  if (!/^[a-f0-9-]{36}$/i.test(id)) return { error: "Entrega indisponível." };
   const client = await sessionClient();
   const { data: { user } } = await client.auth.getUser();
   if (!user) redirect("/login");
-  const { error } = await adminClient().from("deliveries")
+  const { data, error } = await adminClient().from("deliveries")
     .update({ revoked_at: new Date().toISOString() })
-    .eq("id", id).eq("owner_id", user.id).is("revoked_at", null);
-  if (error) throw new Error("Não foi possível revogar o link.");
+    .eq("id", id).eq("owner_id", user.id).is("revoked_at", null).select("id").maybeSingle();
+  if (error || !data) return { error: "Não foi possível revogar o link." };
   revalidatePath("/");
+  return { error: undefined };
 }

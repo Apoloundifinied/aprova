@@ -1,20 +1,23 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import { publishDelivery, type PublishResult } from "./actions";
+
+import { useActionNotice, useNotify } from "./notifications";
 
 export function PublishForm() {
   const [result, action, pending] = useActionState(publishDelivery, {} as PublishResult);
-  const [copiedLink, setCopiedLink] = useState("");
+  const notify = useNotify();
+  useActionNotice(result, result.link ? "V1 publicada. O link está pronto para compartilhar." : undefined, result.error);
   const reviewLink = result.link;
 
   async function copyLink() {
     if (!reviewLink) return;
     try {
       await navigator.clipboard.writeText(new URL(reviewLink, window.location.origin).href);
-      setCopiedLink(reviewLink);
+      notify("Link copiado.");
     } catch {
-      setCopiedLink("");
+      notify("Não foi possível copiar. Abra a revisão para copiar o endereço.", "error");
     }
   }
 
@@ -26,9 +29,8 @@ export function PublishForm() {
       <p className="muted">PNG, JPEG ou WebP de até 3 MB.</p>
       <button type="submit" disabled={pending}>{pending ? "Publicando…" : "Publicar V1"}</button>
     </form>
-    {result.error && <p role="alert">{result.error}</p>}
+    {result.error && <p className="field-error">{result.error}</p>}
     {reviewLink && <div className="share">
-      <p role="status">{copiedLink === reviewLink ? "Link copiado." : "V1 publicada. Compartilhe este link agora."}</p>
       <a href={reviewLink} target="_blank" rel="noreferrer">Abrir revisão</a>
       <button type="button" className="secondary" onClick={copyLink}>Copiar link</button>
     </div>}

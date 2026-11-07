@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "@fontsource-variable/inter";
 import "./globals.css";
+import { Notifications } from "./notifications";
 
 export const metadata: Metadata = {
   title: "Aprova · Revisão de entregas",
@@ -10,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
-  return <html lang="pt-BR"><body><header><span className="brand">aprova<span>.</span></span><span className="eyebrow">Revisão de entregas</span></header>{children}</body></html>;
+  return <html lang="pt-BR"><body><Notifications><header><span className="brand">aprova<span>.</span></span><span className="eyebrow">Revisão de entregas</span></header>{children}</Notifications></body></html>;
 }
