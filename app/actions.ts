@@ -23,20 +23,27 @@ export async function signOut() {
 
 export type PublishResult = { error?: string; link?: string };
 
-export async function publishDelivery(_: PublishResult, form: FormData): Promise<PublishResult> {
-  const client = await sessionClient();
-  const { data: { user } } = await client.auth.getUser();
-  if (!user) return { error: "Entre na sua conta para publicar." };
-
-  const title = String(form.get("title") ?? "").trim();
+async function readImage(form: FormData) {
   const file = form.get("file");
-  if (!title || title.length > 100) return { error: "Informe um título de até 100 caracteres." };
   if (!(file instanceof File) || !file.size || file.size > 3 * 1024 * 1024) {
     return { error: "Envie uma imagem de até 3 MB." };
   }
   const bytes = await file.arrayBuffer();
   const mime = detectImage(new Uint8Array(bytes));
   if (!mime) return { error: "Use uma imagem PNG, JPEG ou WebP." };
+  return { bytes, mime };
+}
+
+export async function publishDelivery(_: PublishResult, form: FormData): Promise<PublishResult> {
+  const client = await sessionClient();
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) return { error: "Entre na sua conta para publicar." };
+
+  const title = String(form.get("title") ?? "").trim();
+  if (!title || title.length > 100) return { error: "Informe um título de até 100 caracteres." };
+  const image = await readImage(form);
+  if ("error" in image) return image;
+  const { bytes, mime } = image;
 
   const id = randomUUID();
   const path = `${user.id}/${id}/v1`;
@@ -61,6 +68,49 @@ export async function publishDelivery(_: PublishResult, form: FormData): Promise
 
   revalidatePath("/");
   return { link: `/revisao/${token}` };
+}
+
+export type VersionResult = { error?: string; number?: number };
+
+export async function publishVersion(id: string, _: VersionResult, form: FormData): Promise<VersionResult> {
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)) {
+    return { error: "Entrega indisponível." };
+  }
+  const client = await sessionClient();
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) return { error: "Entre na sua conta para publicar." };
+
+  const { data: delivery, error: lookupError } = await client.from("deliveries")
+    .select("id").eq("id", id).eq("owner_id", user.id)
+    .is("revoked_at", null).gt("expires_at", new Date().toISOString()).maybeSingle();
+  if (lookupError || !delivery) return { error: "Entrega ou link indisponível." };
+
+  const image = await readImage(form);
+  if ("error" in image) return image;
+
+  const admin = adminClient();
+  const files = admin.storage.from("review-files");
+  const path = `${user.id}/${id}/${randomUUID()}`;
+  const upload = await files.upload(path, image.bytes, { contentType: image.mime, upsert: false });
+  if (upload.error) return { error: "Falha ao enviar a imagem. Tente novamente." };
+
+  const result = await admin.rpc("publish_delivery_version", {
+    target_delivery: id, owner: user.id, object_path: path,
+  });
+  let number = result.data;
+  if (result.error) {
+    const persisted = await admin.from("delivery_versions").select("number")
+      .eq("storage_path", path).maybeSingle();
+    if (persisted.error) return { error: "Não foi possível confirmar a publicação. Recarregue para consultar o histórico." };
+    number = persisted.data?.number;
+  }
+  if (typeof number !== "number") {
+    await files.remove([path]);
+    return { error: "Não foi possível publicar a versão. Confira se o link ainda está ativo." };
+  }
+
+  revalidatePath("/");
+  return { number };
 }
 
 export async function revokeLink(form: FormData) {

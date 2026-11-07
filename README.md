@@ -26,4 +26,4 @@ O percentual representa marcos aceitos, com 20 pontos por marco.
 - [ ] Demo publicada e testada com outra pessoa em desktop e mobile.
 - [ ] Case no portfólio com landing page, motion e demonstração do webhook.
 
-O cliente pode enviar um pedido de ajuste por versão pelo link de revisão. O freelancer vê o comentário no histórico. Publicação da V2, aprovação e webhooks fazem parte dos próximos marcos.
+O cliente pode enviar um pedido de ajuste por versão pelo link de revisão. O freelancer vê o comentário no histórico. O freelancer pode publicar novas versões pelo mesmo link ativo, com os pedidos anteriores preservados. Aprovação e webhooks fazem parte dos próximos marcos.

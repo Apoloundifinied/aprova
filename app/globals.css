@@ -37,3 +37,7 @@ li p { margin:4px 0 0; }
 .adjustment textarea { width:100%; resize:vertical; font:inherit; color:inherit; border:1px solid var(--line); background:var(--surface); padding:10px; border-radius:6px; }
 .feedback { margin-top:12px; padding:12px; background:var(--surface); border-radius:6px; overflow-wrap:anywhere; }
 .feedback p { white-space:pre-wrap; margin:4px 0 0; }
+.delivery-row { flex-wrap:wrap; align-items:flex-start; }
+.delivery-actions { display:flex; flex-wrap:wrap; align-items:flex-start; gap:10px; }
+.version-upload summary { cursor:pointer; padding:11px 12px; }
+.version-upload .fields { margin-top:8px; max-width:280px; }

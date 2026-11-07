@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { configured, sessionClient } from "../lib/supabase";
 import { revokeLink, signOut } from "./actions";
 import { PublishForm } from "./publish-form";
+import { VersionForm } from "./version-form";
 
 export default async function Home() {
   if (!configured()) redirect("/login");
@@ -28,7 +29,7 @@ export default async function Home() {
             const latest = versions[0];
             const status = revoked ? "Link revogado" : expired ? "Link expirado" :
               latest?.request ? "Ajuste solicitado" : "Em revisão";
-            return <li key={item.id}><div><strong>{item.title}</strong><p className="muted">V{latest?.number ?? 1} · {status}</p>
+            return <li className="delivery-row" key={item.id}><div><strong>{item.title}</strong><p className="muted">V{latest?.number ?? 1} · {status}</p>
               {versions.map(version => version.request &&
                 <div className="feedback" key={version.number}>
                   <strong>Pedido de ajuste · V{version.number}</strong>
@@ -36,7 +37,7 @@ export default async function Home() {
                 </div>
               )}
             </div>
-              {!revoked && !expired && <form action={revokeLink}><input type="hidden" name="delivery" value={item.id} /><button className="secondary">Revogar link</button></form>}
+              {!revoked && !expired && <div className="delivery-actions"><VersionForm deliveryId={item.id} /><form action={revokeLink}><input type="hidden" name="delivery" value={item.id} /><button className="secondary">Revogar link</button></form></div>}
             </li>;
           })}</ul>}
       </section>
