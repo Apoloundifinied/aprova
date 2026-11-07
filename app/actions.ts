@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { adminClient, sessionClient } from "../lib/supabase";
-import { createReviewToken, detectImage, hashReviewToken } from "../lib/review";
+import { createReviewToken, decryptReviewToken, detectImage, encryptReviewToken, hashReviewToken } from "../lib/review";
 
 export async function signIn(form: FormData) {
   const email = String(form.get("email") ?? "").trim();
@@ -55,7 +55,7 @@ export async function publishDelivery(_: PublishResult, form: FormData): Promise
 
   const publish = await admin.rpc("publish_initial_delivery", {
     delivery_id: id, owner: user.id, delivery_title: title,
-    token_hash: hashReviewToken(token), object_path: path,
+    token_hash: hashReviewToken(token), object_path: path, token_ciphertext: encryptReviewToken(token),
   });
   if (publish.error) {
     // Check whether a connection error happened after the transaction committed.
@@ -125,4 +125,59 @@ export async function revokeLink(form: FormData) {
   if (error || !data) return { error: "Não foi possível revogar o link." };
   revalidatePath("/");
   return { error: undefined };
+}
+
+export async function manageDelivery(id: string, intent: string): Promise<PublishResult & { message?: string }> {
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)) return { error: "Entrega indisponível." };
+  const client = await sessionClient();
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) return { error: "Entre na sua conta para gerenciar a entrega." };
+
+  const admin = adminClient();
+  const { data: delivery, error } = await admin.from("deliveries")
+    .select("review_hash,review_ciphertext,revoked_at,expires_at,archived_at")
+    .eq("id", id).eq("owner_id", user.id).maybeSingle();
+  if (error || !delivery) return { error: "Entrega indisponível." };
+
+  if (intent === "link") {
+    if (delivery.revoked_at || delivery.archived_at || Date.parse(delivery.expires_at) <= Date.now()) {
+      return { error: "Este link está encerrado. Gere um novo para compartilhar." };
+    }
+    if (delivery.review_ciphertext) {
+      try {
+        const token = decryptReviewToken(delivery.review_ciphertext);
+        if (hashReviewToken(token) === delivery.review_hash) return { link: `/revisao/${token}` };
+      } catch {
+        // Links encrypted with a previous server key can be regenerated.
+      }
+    }
+    return { error: "O endereço original não está disponível aqui. Gere um novo link para compartilhar." };
+  }
+
+  if (intent === "archive") {
+    const now = new Date().toISOString();
+    const { data, error } = await admin.from("deliveries")
+      .update({ archived_at: now, revoked_at: now })
+      .eq("id", id).eq("owner_id", user.id).is("archived_at", null).select("id").maybeSingle();
+    if (error || !data) return { error: "Não foi possível arquivar a entrega." };
+    revalidatePath("/");
+    return { message: "Entrega arquivada e link encerrado." };
+  }
+
+  if (intent === "renew") {
+    const token = createReviewToken();
+    const { data, error } = await admin.from("deliveries").update({
+      review_hash: hashReviewToken(token),
+      review_ciphertext: encryptReviewToken(token),
+      revoked_at: null,
+      archived_at: null,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    }).eq("id", id).eq("owner_id", user.id).eq("review_hash", delivery.review_hash)
+      .select("id").maybeSingle();
+    if (error || !data) return { error: "Não foi possível gerar outro link. Atualize a página e tente novamente." };
+    revalidatePath("/");
+    return { link: `/revisao/${token}`, message: "Novo link de revisão gerado." };
+  }
+
+  return { error: "Ação indisponível." };
 }

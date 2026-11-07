@@ -18,7 +18,7 @@ export function VersionForm({ deliveryId }: { deliveryId: string }) {
       <label>Imagem da nova versão
         <input name="file" type="file" accept="image/png,image/jpeg,image/webp" required />
       </label>
-      <button disabled={pending}>{pending ? "Publicando…" : "Publicar versão"}</button>
+      <button className="secondary" disabled={pending}>{pending ? "Publicando…" : "Publicar versão"}</button>
       {result.error && <p className="field-error">{result.error}</p>}
     </form>
   </details>;

@@ -14,7 +14,7 @@ Plataforma de revisão de trabalhos criativos. O freelancer publica uma entrega 
 4. Crie um usuário de teste confirmado em **Authentication → Users**.
 5. Rode `npm run dev` e abra `http://localhost:3000`.
 
-Entre no painel, publique uma imagem PNG, JPEG ou WebP de até 3 MB e abra o link em uma janela anônima. O token só é exibido na confirmação de publicação. A entrega guarda o hash do token, que expira em sete dias. Revogar o link bloqueia novas visualizações. Uma URL de imagem emitida anteriormente expira em até 60 segundos.
+Entre no painel, publique uma imagem PNG, JPEG ou WebP de até 3 MB e abra o link em uma janela anônima. Use **Ações do link** no card para recuperar um link ativo, gerar outro endereço ou arquivar a entrega. Links criados antes dessa funcionalidade podem ser reemitidos. A cópia recuperável do token fica criptografada no banco. A entrega guarda o hash do token, que expira em sete dias. Revogar o link bloqueia novas visualizações. Uma URL de imagem emitida anteriormente expira em até 60 segundos.
 
 ## Marcos para o portfólio
 

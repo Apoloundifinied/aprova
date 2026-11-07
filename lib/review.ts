@@ -1,5 +1,5 @@
 import "server-only";
-import { createHash, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 
 export function createReviewToken() {
   return randomBytes(32).toString("base64url");
@@ -15,4 +15,24 @@ export function detectImage(bytes: Uint8Array) {
   if (content[0] === 255 && content[1] === 216 && content[2] === 255) return "image/jpeg";
   if (content.toString("ascii", 0, 4) === "RIFF" && content.toString("ascii", 8, 12) === "WEBP") return "image/webp";
   return null;
+}
+
+function reviewEncryptionKey() {
+  const secret = process.env.SUPABASE_SECRET_KEY;
+  if (!secret) throw new Error("Chave secreta do Supabase indisponível.");
+  return createHash("sha256").update("aprova:review-link:v1:").update(secret).digest();
+}
+
+export function encryptReviewToken(token: string) {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", reviewEncryptionKey(), iv);
+  const encrypted = Buffer.concat([cipher.update(token, "utf8"), cipher.final()]);
+  return Buffer.concat([iv, cipher.getAuthTag(), encrypted]).toString("base64url");
+}
+
+export function decryptReviewToken(value: string) {
+  const bytes = Buffer.from(value, "base64url");
+  const decipher = createDecipheriv("aes-256-gcm", reviewEncryptionKey(), bytes.subarray(0, 12));
+  decipher.setAuthTag(bytes.subarray(12, 28));
+  return Buffer.concat([decipher.update(bytes.subarray(28)), decipher.final()]).toString("utf8");
 }
