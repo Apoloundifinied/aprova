@@ -26,16 +26,22 @@ export function Notifications({ children }: { children: ReactNode }) {
 }
 
 function NoticeCard({ notice, dismiss }: { notice: Notice; dismiss: (id: number) => void }) {
+  const [closing, setClosing] = useState(false);
+  useEffect(() => {
+    if (!closing) return;
+    const timer = window.setTimeout(() => dismiss(notice.id), 180);
+    return () => window.clearTimeout(timer);
+  }, [closing, dismiss, notice.id]);
   useEffect(() => {
     if (notice.kind === "error") return;
-    const timer = window.setTimeout(() => dismiss(notice.id), 5000);
+    const timer = window.setTimeout(() => setClosing(true), 5000);
     return () => window.clearTimeout(timer);
   }, [notice, dismiss]);
 
-  return <div className="notice" data-kind={notice.kind}>
+  return <div className="notice" data-kind={notice.kind} data-closing={closing}>
     <span className="notice-icon" aria-hidden="true">{notice.kind === "success" ? "✓" : "!"}</span>
     <span role={notice.kind === "error" ? "alert" : "status"}>{notice.message}</span>
-    <button type="button" onClick={() => dismiss(notice.id)} aria-label="Fechar notificação">×</button>
+    <button type="button" onClick={() => setClosing(true)} aria-label="Fechar notificação">×</button>
   </div>;
 }
 

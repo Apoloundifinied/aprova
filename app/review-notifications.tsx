@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useNotify } from "./notifications";
 
@@ -8,6 +8,9 @@ type ReviewEvent = { id: string; message: string };
 
 export function ReviewNotifications({ events }: { events: ReviewEvent[] }) {
   const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const busy = useRef(false);
+  useEffect(() => { busy.current = pending; }, [pending]);
   const notify = useNotify();
   const seen = useRef<Set<string> | null>(null);
 
@@ -24,10 +27,12 @@ export function ReviewNotifications({ events }: { events: ReviewEvent[] }) {
 
   useEffect(() => {
     const refresh = () => {
-      if (document.visibilityState === "visible") router.refresh();
+      if (document.visibilityState !== "visible" || !navigator.onLine || busy.current) return;
+      if (document.activeElement?.closest("input, textarea, select, form")) return;
+      startTransition(() => router.refresh());
     };
     window.addEventListener("focus", refresh);
-    const timer = window.setInterval(refresh, 15000);
+    const timer = window.setInterval(refresh, 30000);
     return () => {
       window.removeEventListener("focus", refresh);
       window.clearInterval(timer);

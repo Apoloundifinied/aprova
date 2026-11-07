@@ -54,7 +54,7 @@ export function PublishForm() {
 
   return <section id="nova-entrega" className="panel publish-panel">
     <h2>Nova entrega</h2>
-    <form className="fields" action={action}>
+    <form className="fields" action={action} aria-busy={pending}>
       <label>Título<input name="title" value={title} onChange={event => setTitle(event.target.value)}
         placeholder="Campanha de lançamento" required maxLength={100} disabled={pending} /></label>
       <div>
@@ -75,7 +75,7 @@ export function PublishForm() {
         <p className="muted file-help">PNG, JPEG ou WebP de até 3 MB.</p>
         {fileError && <p className="field-error" role="alert">{fileError}</p>}
       </div>
-      <button type="submit" disabled={pending || !title.trim() || !file}>
+      <button type="submit" aria-busy={pending} disabled={pending || !title.trim() || !file}>
         {pending ? "Publicando…" : "Publicar V1"}
       </button>
     </form>

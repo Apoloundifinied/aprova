@@ -27,3 +27,16 @@ O percentual representa marcos aceitos, com 20 pontos por marco.
 - [ ] Case no portfólio com landing page, motion e demonstração do webhook.
 
 O cliente pode enviar um pedido de ajuste por versão pelo link de revisão. O freelancer vê o comentário no histórico. O freelancer pode publicar novas versões pelo mesmo link ativo, com os pedidos anteriores preservados. O cliente pode aprovar a versão atual pelo link. A aprovação fica vinculada ao arquivo revisado. Webhooks fazem parte dos próximos marcos.
+
+## Experiência e demonstração
+- `/conheca`: apresentação do produto.
+- `/demo`: demo guiada sem login, com estado local e dados fictícios. Não grava no banco.
+- [Case técnico e visual](docs/case.md).
+- [Sistema de movimento e storyboard](docs/motion.md).
+
+## Verificação
+- `npm test`: testes locais de tokens, criptografia e identificação de formatos.
+- `npm run test:integration`: usa as variáveis de `.env.local`, cria duas contas temporárias e uma entrega de teste, verifica permissões e decisões e remove as fixtures ao final. Executar contra ambiente de desenvolvimento.
+- `npm run build`: compilação de produção e TypeScript.
+
+A publicação pública e o teste com pessoa externa ainda não foram concluídos. O percentual dos marcos permanece em 60%.
