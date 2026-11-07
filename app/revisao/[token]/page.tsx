@@ -1,4 +1,4 @@
-import { AdjustmentForm } from "./adjustment-form";
+import { AdjustmentForm, ApprovalForm } from "./adjustment-form";
 import { notFound } from "next/navigation";
 import { adminClient, configured } from "../../../lib/supabase";
 import { hashReviewToken } from "../../../lib/review";
@@ -16,7 +16,7 @@ export default async function Review({ params }: { params: Promise<{ token: stri
   if (!delivery) notFound();
 
   const { data: version, error: versionError } = await admin.from("delivery_versions")
-    .select("id,number,storage_path,adjustment_requests(comment)").eq("delivery_id", delivery.id)
+    .select("id,number,storage_path,approved_at,adjustment_requests(comment)").eq("delivery_id", delivery.id)
     .order("number", { ascending: false }).limit(1).maybeSingle();
   if (versionError) throw new Error("Falha ao consultar a versão.");
   if (!version) notFound();
@@ -30,10 +30,13 @@ export default async function Review({ params }: { params: Promise<{ token: stri
     <div className="columns review">
       <div className="preview"><img src={image.signedUrl} alt={`Arte de ${delivery.title}, versão ${version.number}`} /></div>
       <aside className="panel"><h2>Revisão</h2><p className="version">V{version.number} · Atual</p><p className="muted">Confira a imagem enviada pelo freelancer.</p>
-        {feedback ? <div className="feedback">
+        {version.approved_at ? <p className="version" role="status">V{version.number} aprovada.</p> : feedback ? <div className="feedback">
           <strong>Ajuste solicitado</strong>
           <p>{feedback.comment}</p>
-        </div> : <AdjustmentForm token={token} versionId={version.id} />}
+        </div> : <>
+          <ApprovalForm token={token} versionId={version.id} />
+          <AdjustmentForm token={token} versionId={version.id} />
+        </>}
       </aside>
     </div>
   </main>;

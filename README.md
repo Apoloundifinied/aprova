@@ -22,8 +22,8 @@ O percentual representa marcos aceitos, com 20 pontos por marco.
 
 - [x] Protótipo desktop/mobile no Figma com o fluxo de revisão.
 - [x] V1 publicada e aberta pelo cliente em ambiente integrado, com revogação verificada.
-- [ ] Comentário por versão, publicação de V2 e aprovação com histórico.
+- [x] Comentário por versão, publicação de V2 e aprovação com histórico.
 - [ ] Demo publicada e testada com outra pessoa em desktop e mobile.
 - [ ] Case no portfólio com landing page, motion e demonstração do webhook.
 
-O cliente pode enviar um pedido de ajuste por versão pelo link de revisão. O freelancer vê o comentário no histórico. O freelancer pode publicar novas versões pelo mesmo link ativo, com os pedidos anteriores preservados. Aprovação e webhooks fazem parte dos próximos marcos.
+O cliente pode enviar um pedido de ajuste por versão pelo link de revisão. O freelancer vê o comentário no histórico. O freelancer pode publicar novas versões pelo mesmo link ativo, com os pedidos anteriores preservados. O cliente pode aprovar a versão atual pelo link. A aprovação fica vinculada ao arquivo revisado. Webhooks fazem parte dos próximos marcos.

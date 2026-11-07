@@ -11,7 +11,7 @@ export default async function Home() {
   if (!user) redirect("/login");
 
   const { data, error } = await client.from("deliveries")
-    .select("id,title,expires_at,revoked_at,delivery_versions(number,adjustment_requests(comment))").eq("owner_id", user.id).order("created_at", { ascending: false });
+    .select("id,title,expires_at,revoked_at,delivery_versions(number,approved_at,adjustment_requests(comment))").eq("owner_id", user.id).order("created_at", { ascending: false });
 
   return <main>
     <div className="heading"><div><p className="eyebrow">Área do freelancer</p><h1>Gerenciar entregas</h1></div><form action={signOut}><button className="secondary">Sair</button></form></div>
@@ -23,13 +23,17 @@ export default async function Home() {
             const expired = Date.parse(item.expires_at) <= Date.now();
             const versions = item.delivery_versions.map(version => ({
               number: version.number,
+              approvedAt: version.approved_at,
               request: Array.isArray(version.adjustment_requests)
                 ? version.adjustment_requests[0] : version.adjustment_requests,
             })).sort((a, b) => b.number - a.number);
             const latest = versions[0];
             const status = revoked ? "Link revogado" : expired ? "Link expirado" :
-              latest?.request ? "Ajuste solicitado" : "Em revisão";
+              latest?.approvedAt ? "Aprovada" : latest?.request ? "Ajuste solicitado" : "Em revisão";
             return <li className="delivery-row" key={item.id}><div><strong>{item.title}</strong><p className="muted">V{latest?.number ?? 1} · {status}</p>
+              {versions.filter(version => version.approvedAt).map(version =>
+                <p className="version" key={version.number}>V{version.number} aprovada.</p>
+              )}
               {versions.map(version => version.request &&
                 <div className="feedback" key={version.number}>
                   <strong>Pedido de ajuste · V{version.number}</strong>
