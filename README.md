@@ -21,9 +21,9 @@ Entre no painel, publique uma imagem PNG, JPEG ou WebP de até 3 MB e abra o lin
 O percentual representa marcos aceitos, com 20 pontos por marco.
 
 - [x] Protótipo desktop/mobile no Figma com o fluxo de revisão.
-- [ ] V1 publicada e aberta pelo cliente em ambiente integrado, com revogação verificada.
+- [x] V1 publicada e aberta pelo cliente em ambiente integrado, com revogação verificada.
 - [ ] Comentário por versão, publicação de V2 e aprovação com histórico.
 - [ ] Demo publicada e testada com outra pessoa em desktop e mobile.
 - [ ] Case no portfólio com landing page, motion e demonstração do webhook.
 
-O código do upload inicial está em desenvolvimento. Comentários, troca de versão, aprovação e webhooks fazem parte dos próximos marcos.
+O cliente pode enviar um pedido de ajuste por versão pelo link de revisão. O freelancer vê o comentário no histórico. Publicação da V2, aprovação e webhooks fazem parte dos próximos marcos.

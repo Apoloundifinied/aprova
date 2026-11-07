@@ -33,3 +33,7 @@ li p { margin:4px 0 0; }
 @keyframes appear { from { opacity:0; } to { opacity:1; } }
 @media (max-width:730px) { .columns { grid-template-columns:1fr; } .panel { padding:18px; } }
 @media (prefers-reduced-motion:reduce) { .preview img { animation:none; } }
+.adjustment { margin-top: 20px; }
+.adjustment textarea { width:100%; resize:vertical; font:inherit; color:inherit; border:1px solid var(--line); background:var(--surface); padding:10px; border-radius:6px; }
+.feedback { margin-top:12px; padding:12px; background:var(--surface); border-radius:6px; overflow-wrap:anywhere; }
+.feedback p { white-space:pre-wrap; margin:4px 0 0; }

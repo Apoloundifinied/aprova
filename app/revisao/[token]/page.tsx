@@ -1,3 +1,4 @@
+import { AdjustmentForm } from "./adjustment-form";
 import { notFound } from "next/navigation";
 import { adminClient, configured } from "../../../lib/supabase";
 import { hashReviewToken } from "../../../lib/review";
@@ -15,17 +16,25 @@ export default async function Review({ params }: { params: Promise<{ token: stri
   if (!delivery) notFound();
 
   const { data: version, error: versionError } = await admin.from("delivery_versions")
-    .select("number,storage_path").eq("delivery_id", delivery.id)
+    .select("id,number,storage_path,adjustment_requests(comment)").eq("delivery_id", delivery.id)
     .order("number", { ascending: false }).limit(1).maybeSingle();
   if (versionError) throw new Error("Falha ao consultar a versão.");
   if (!version) notFound();
   const { data: image, error: imageError } = await admin.storage.from("review-files").createSignedUrl(version.storage_path, 60);
   if (imageError || !image) throw new Error("Falha ao abrir a imagem.");
 
+  const feedback = Array.isArray(version.adjustment_requests)
+    ? version.adjustment_requests[0] : version.adjustment_requests;
+
   return <main><p className="eyebrow">Revisão de entrega</p><h1>{delivery.title}</h1>
     <div className="columns review">
       <div className="preview"><img src={image.signedUrl} alt={`Arte de ${delivery.title}, versão ${version.number}`} /></div>
-      <aside className="panel"><h2>Revisão</h2><p className="version">V{version.number} · Atual</p><p className="muted">Confira a imagem enviada pelo freelancer.</p></aside>
+      <aside className="panel"><h2>Revisão</h2><p className="version">V{version.number} · Atual</p><p className="muted">Confira a imagem enviada pelo freelancer.</p>
+        {feedback ? <div className="feedback">
+          <strong>Ajuste solicitado</strong>
+          <p>{feedback.comment}</p>
+        </div> : <AdjustmentForm token={token} versionId={version.id} />}
+      </aside>
     </div>
   </main>;
 }

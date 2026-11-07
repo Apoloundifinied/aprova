@@ -10,7 +10,7 @@ export default async function Home() {
   if (!user) redirect("/login");
 
   const { data, error } = await client.from("deliveries")
-    .select("id,title,expires_at,revoked_at").eq("owner_id", user.id).order("created_at", { ascending: false });
+    .select("id,title,expires_at,revoked_at,delivery_versions(number,adjustment_requests(comment))").eq("owner_id", user.id).order("created_at", { ascending: false });
 
   return <main>
     <div className="heading"><div><p className="eyebrow">Área do freelancer</p><h1>Gerenciar entregas</h1></div><form action={signOut}><button className="secondary">Sair</button></form></div>
@@ -20,7 +20,22 @@ export default async function Home() {
           <ul>{data.map(item => {
             const revoked = Boolean(item.revoked_at);
             const expired = Date.parse(item.expires_at) <= Date.now();
-            return <li key={item.id}><div><strong>{item.title}</strong><p className="muted">V1 · {revoked ? "Link revogado" : expired ? "Link expirado" : "Em revisão"}</p></div>
+            const versions = item.delivery_versions.map(version => ({
+              number: version.number,
+              request: Array.isArray(version.adjustment_requests)
+                ? version.adjustment_requests[0] : version.adjustment_requests,
+            })).sort((a, b) => b.number - a.number);
+            const latest = versions[0];
+            const status = revoked ? "Link revogado" : expired ? "Link expirado" :
+              latest?.request ? "Ajuste solicitado" : "Em revisão";
+            return <li key={item.id}><div><strong>{item.title}</strong><p className="muted">V{latest?.number ?? 1} · {status}</p>
+              {versions.map(version => version.request &&
+                <div className="feedback" key={version.number}>
+                  <strong>Pedido de ajuste · V{version.number}</strong>
+                  <p>{version.request.comment}</p>
+                </div>
+              )}
+            </div>
               {!revoked && !expired && <form action={revokeLink}><input type="hidden" name="delivery" value={item.id} /><button className="secondary">Revogar link</button></form>}
             </li>;
           })}</ul>}
